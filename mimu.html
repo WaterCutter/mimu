@@ -1,34 +1,380 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Missile Interception Algorithm Demo</title>
+    <title>Advanced Missile Interception Algorithm Demonstration</title>
     <style>
-        /* CSS styles remain the same as original */
-        /* ... */
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --dark: #1a2530;
+            --light: #ecf0f1;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--light);
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: rgba(30, 40, 60, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        header {
+            padding: 20px 30px;
+            background: rgba(0, 0, 0, 0.3);
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: #a0c6f8;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .simulation-panel {
+            background: rgba(0, 10, 30, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        canvas {
+            display: block;
+            background: #0a1429;
+            border-radius: 8px;
+            border: 1px solid #355c7d;
+            margin: 0 auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .control-panel {
+            background: rgba(20, 30, 50, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .panel-title {
+            font-size: 1.3rem;
+            color: var(--secondary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .panel-title i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .slider-group {
+            margin: 15px 0;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #a0c6f8;
+            font-weight: 500;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #2c3e50;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--secondary);
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+        
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #355c7d;
+            background: #1a2530;
+            color: var(--light);
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        select:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+        }
+        
+        .algorithm-info {
+            padding: 12px;
+            background: rgba(0, 20, 40, 0.6);
+            border-radius: 6px;
+            border-left: 3px solid var(--secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            min-height: 110px;
+        }
+        
+        .status-group {
+            background: rgba(0, 15, 30, 0.7);
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+        
+        .status-label {
+            color: #a0c6f8;
+        }
+        
+        .status-value {
+            font-weight: 600;
+        }
+        
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        button {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        .algorithms-section {
+            padding: 30px;
+            background: rgba(0, 15, 30, 0.7);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            color: var(--secondary);
+        }
+        
+        .algorithms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+        
+        .algorithm-card {
+            background: rgba(0, 20, 40, 0.6);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .algorithm-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            border-color: rgba(52, 152, 219, 0.5);
+        }
+        
+        .card-header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .algorithm-name {
+            font-size: 1.4rem;
+            color: var(--secondary);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .algorithm-name i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .algorithm-subtitle {
+            color: #89b9ff;
+            font-size: 0.95rem;
+        }
+        
+        .card-content {
+            padding: 20px;
+        }
+        
+        .algorithm-description {
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 15px;
+            color: #d0e4ff;
+        }
+        
+        .algorithm-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #89b9ff;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .intercept-time { color: #ff9800; }
+        .success-rate { color: #4caf50; }
+        .complexity { color: #f44336; }
+        
+        @media (max-width: 1000px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-panel {
+                margin-top: 20px;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 0.95rem;
+            }
+            
+            .algorithms-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Main container -->
     <div class="container">
         <header>
-            <h1>Advanced Missile Interception Algorithm Demo System</h1>
-            <p class="subtitle">This demo showcases cutting-edge algorithms in modern missile defense systems, including Optimal Guidance (OG), Adaptive Proportional Navigation Guidance (APNG), and Swarm Interception Algorithm (SIA)</p>
+            <h1>Advanced Missile Interception Algorithm Demonstration System</h1>
+            <p class="subtitle">This demonstration showcases cutting-edge algorithms in modern missile defense systems, including Optimal Guidance (OG), Adaptive Proportional Navigation Guidance (APNG), and Swarm Interception Algorithm (SIA)</p>
         </header>
         
         <div class="dashboard">
-            <!-- Simulation visualization panel -->
             <div class="simulation-panel">
                 <canvas id="simulationCanvas" width="700" height="500"></canvas>
             </div>
             
-            <!-- Control panel -->
             <div class="control-panel">
                 <div class="control-group">
                     <div class="panel-title">🚀 Control Panel</div>
                     
-                    <!-- Speed control sliders -->
                     <div class="slider-group">
                         <label for="missileSpeed">Missile Speed: <span id="missileSpeedValue">5</span></label>
                         <input type="range" id="missileSpeed" min="1" max="15" value="5">
@@ -49,29 +395,25 @@
                         <input type="range" id="numInterceptors" min="1" max="8" value="3">
                     </div>
                     
-                    <!-- Algorithm selection dropdown -->
                     <label for="algorithm">Select Interception Algorithm:</label>
                     <select id="algorithm">
-                        <option value="proportional">Proportional Navigation (PNG)</option>
+                        <option value="proportional">Proportional Navigation Guidance (PNG)</option>
                         <option value="predictive">Predictive Interception</option>
                         <option value="og">Optimal Guidance (OG)</option>
                         <option value="apng">Adaptive Proportional Navigation (APNG)</option>
                         <option value="sia">Swarm Interception Algorithm (SIA)</option>
                     </select>
                     
-                    <!-- Algorithm description area -->
                     <div class="algorithm-info">
                         <span id="algorithmDescription">Select an algorithm to view details</span>
                     </div>
                 </div>
                 
-                <!-- Action buttons -->
                 <div class="btn-group">
                     <button id="startBtn" class="btn-success">▶ Start Simulation</button>
                     <button id="resetBtn" class="btn-danger">🔄 Reset Simulation</button>
                 </div>
                 
-                <!-- Status display -->
                 <div class="status-group">
                     <div class="panel-title">📊 Interception Status</div>
                     <div class="status-row">
@@ -79,7 +421,7 @@
                         <span class="status-value" id="status">Ready</span>
                     </div>
                     <div class="status-row">
-                        <span class="status-label">Result:</span>
+                        <span class="status-label">Interception Result:</span>
                         <span class="status-value" id="result">-</span>
                     </div>
                     <div class="status-row">
@@ -94,19 +436,17 @@
             </div>
         </div>
         
-        <!-- Algorithm information section -->
         <div class="algorithms-section">
             <h2 class="section-title">Algorithm Performance Characteristics</h2>
             
             <div class="algorithms-grid">
-                <!-- PNG algorithm card -->
                 <div class="algorithm-card">
                     <div class="card-header">
                         <div class="algorithm-name">⚡ Proportional Navigation (PNG)</div>
-                        <div class="algorithm-subtitle">Classic interception algorithm</div>
+                        <div class="algorithm-subtitle">Classic Interception Algorithm</div>
                     </div>
                     <div class="card-content">
-                        <p class="algorithm-description">The interceptor's flight direction changes proportionally to the line-of-sight angle between missile and interceptor. Simple yet effective for most conventional interception scenarios.</p>
+                        <p class="algorithm-description">The interceptor's flight direction changes proportionally to the line-of-sight angle between the missile and interceptor. This method is simple and effective, suitable for most conventional interception scenarios.</p>
                         <div class="algorithm-stats">
                             <div class="stat-item">
                                 <div class="stat-label">Avg. Time</div>
@@ -124,14 +464,13 @@
                     </div>
                 </div>
                 
-                <!-- OG algorithm card -->
                 <div class="algorithm-card">
                     <div class="card-header">
                         <div class="algorithm-name">🎯 Optimal Guidance (OG)</div>
-                        <div class="algorithm-subtitle">Energy-optimal path</div>
+                        <div class="algorithm-subtitle">Energy-Optimal Path</div>
                     </div>
                     <div class="card-content">
-                        <p class="algorithm-description">Calculates the interception path with minimal energy consumption using optimization algorithms. Uses numerical methods to find optimal solutions, ideal for high-value target precision interception.</p>
+                        <p class="algorithm-description">Calculates the interception path with minimal energy consumption using optimization algorithms. This method employs numerical optimization to find optimal solutions, particularly suitable for precise interception of high-value targets.</p>
                         <div class="algorithm-stats">
                             <div class="stat-item">
                                 <div class="stat-label">Avg. Time</div>
@@ -149,14 +488,13 @@
                     </div>
                 </div>
                 
-                <!-- APNG algorithm card -->
                 <div class="algorithm-card">
                     <div class="card-header">
                         <div class="algorithm-name">🔄 Adaptive Proportional Navigation (APNG)</div>
-                        <div class="algorithm-subtitle">Intelligent target maneuver adaptation</div>
+                        <div class="algorithm-subtitle">Intelligent Target Maneuver Adaptation</div>
                     </div>
                     <div class="card-content">
-                        <p class="algorithm-description">Dynamically adjusts guidance parameters by monitoring target movement characteristics in real-time. Automatically optimizes tracking strategy during high-maneuverability target turns, improving interception probability.</p>
+                        <p class="algorithm-description">Dynamically adjusts guidance parameters by monitoring target movement characteristics in real-time. This method automatically optimizes tracking strategies when targets perform high-maneuver turns, improving interception probability.</p>
                         <div class="algorithm-stats">
                             <div class="stat-item">
                                 <div class="stat-label">Avg. Time</div>
@@ -174,14 +512,13 @@
                     </div>
                 </div>
                 
-                <!-- SIA algorithm card -->
                 <div class="algorithm-card">
                     <div class="card-header">
                         <div class="algorithm-name">🚀 Swarm Interception Algorithm (SIA)</div>
-                        <div class="algorithm-subtitle">Multi-interceptor coordination</div>
+                        <div class="algorithm-subtitle">Multi-Interceptor Coordination</div>
                     </div>
                     <div class="card-content">
-                        <p class="algorithm-description">Uses multiple interceptors working together. Intelligently allocates interception paths and target points to form an interception net, achieving extremely high success rates against high-speed, high-maneuverability targets.</p>
+                        <p class="algorithm-description">Uses multiple interceptors working together to intercept targets. This algorithm intelligently allocates interception paths and target points, forming an interception network with extremely high success rates against high-speed and high-maneuver targets.</p>
                         <div class="algorithm-stats">
                             <div class="stat-item">
                                 <div class="stat-label">Avg. Time</div>
@@ -226,10 +563,10 @@
         // Simulation parameters
         let missile = {
             x: 50,
-            y: 50,
+            y: 50, //Math.random() * canvas.height,
             speed: 5,
             targetX: canvas.width - 50,
-            targetY: canvas.height - 50,
+            targetY: canvas.height - 50, //Math.random() * canvas.height,
             radius: 8,
             color: '#ff5252',
             trail: [],
@@ -259,7 +596,7 @@
                     color: i === 0 ? '#4caf50' : ['#3498db', '#9b59b6', '#e74c3c', '#f1c40f'][i % 4],
                     launched: false,
                     trail: [],
-                    targetMissile: i === 0, // First interceptor locks on target
+                    targetMissile: i === 0, // First interceptor locks target
                     active: true
                 });
             }
@@ -290,21 +627,21 @@
             if (!simulationRunning) draw();
         });
         
-        // Update algorithm description
+        // Algorithm description update
         algorithmSelect.addEventListener('change', updateAlgorithmDescription);
         
         function updateAlgorithmDescription() {
             const algorithm = algorithmSelect.value;
             if (algorithm === 'proportional') {
-                algorithmDescription.textContent = "Proportional Navigation (PNG): The interceptor's flight direction changes proportionally to the line-of-sight angle between missile and interceptor. Simple and effective for most interception scenarios.";
+                algorithmDescription.textContent = "Proportional Navigation Guidance (PNG): The interceptor's flight direction changes proportionally to the line-of-sight angle between missile and interceptor. This simple yet effective method suits most interception scenarios.";
             } else if (algorithm === 'predictive') {
-                algorithmDescription.textContent = "Predictive Interception: The interceptor predicts the missile's future position and flies directly to the predicted point. Requires more computational power but offers higher interception efficiency.";
+                algorithmDescription.textContent = "Predictive Interception: The interceptor predicts the missile's future position and flies directly to that point. This method requires more computational power but offers higher interception efficiency.";
             } else if (algorithm === 'og') {
-                algorithmDescription.textContent = "Optimal Guidance (OG): Calculates the interception path with minimal energy consumption using optimization algorithms. Uses numerical methods to find optimal solutions, ideal for high-value target precision interception.";
+                algorithmDescription.textContent = "Optimal Guidance (OG): Calculates the energy-optimal interception path using optimization algorithms. Uses numerical methods to find optimal solutions, ideal for precise interception of high-value targets.";
             } else if (algorithm === 'apng') {
-                algorithmDescription.textContent = "Adaptive Proportional Navigation (APNG): Dynamically adjusts guidance parameters by monitoring target movement characteristics in real-time. Automatically optimizes tracking strategy during high-maneuverability target turns.";
+                algorithmDescription.textContent = "Adaptive Proportional Navigation (APNG): Monitors target movement characteristics in real-time to dynamically adjust guidance parameters. Automatically optimizes tracking strategies during high-maneuver target turns, increasing interception probability.";
             } else {
-                algorithmDescription.textContent = "Swarm Interception Algorithm (SIA): Uses multiple interceptors working together. Intelligently allocates interception paths and target points to form an interception net, achieving extremely high success rates against high-speed, high-maneuverability targets.";
+                algorithmDescription.textContent = "Swarm Interception Algorithm (SIA): Multiple interceptors work cooperatively to intercept targets. Intelligently allocates interception paths and target points to form an interception network with extremely high success rates against high-speed, high-maneuver targets.";
             }
         }
         
@@ -338,10 +675,10 @@
             
             missile = {
                 x: 50,
-                y: 50,
+                y: 50, //Math.random() * canvas.height,
                 speed: parseInt(missileSpeedSlider.value),
                 targetX: canvas.width - 50,
-                targetY: canvas.height - 50,
+                targetY: canvas.height - 50, //Math.random() * canvas.height,
                 radius: 8,
                 color: '#ff5252',
                 trail: [],
@@ -441,7 +778,7 @@
             ctx.fillStyle = missile.color;
             ctx.fill();
             
-            // Missile head
+            // Missile nose
             const dx = missile.targetX - missile.x;
             const dy = missile.targetY - missile.y;
             const dist = Math.sqrt(dx*dx+dy*dy);
@@ -478,7 +815,7 @@
                 ctx.setLineDash([]);
             }
             
-            // Interceptor head
+            // Interceptor nose
             const dx = missile.x - interceptor.x;
             const dy = missile.y - interceptor.y;
             const dist = Math.sqrt(dx*dx+dy*dy);
@@ -526,10 +863,10 @@
             const dy = missile.targetY - missile.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             
-            // If missile is close to target
+            // If missile is near target
             if (distance < 10 || Math.random() < missile.maneuverability/300) {
                 missile.targetX = canvas.width - 50;
-                missile.targetY = canvas.height - 50;
+                missile.targetY = canvas.height - 50; //Math.random() * canvas.height;
             }
             
             // Normalize direction vector and multiply by speed
@@ -557,7 +894,7 @@
             const dy = missile.y - interceptor.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             
-            // Proportional navigation: interceptor velocity direction proportional to LOS rate
+            // Proportional navigation: interceptor velocity direction proportional to line-of-sight rate
             const lambda = Math.atan2(dy, dx);
             const vx = Math.cos(lambda) * interceptor.speed;
             const vy = Math.sin(lambda) * interceptor.speed;
@@ -586,7 +923,7 @@
             const distance = Math.sqrt(dx * dx + dy * dy);
             
             // Predict interception point
-            // Solve equations of motion to find meeting point
+            // Solve interceptor and missile motion equations to find meeting point
             const relativeSpeed = interceptor.speed / missile.speed;
             const a = missile.speed * missile.speed - interceptor.speed * interceptor.speed;
             let t = 0;
@@ -631,7 +968,7 @@
             return distance;
         }
         
-        // Optimal Guidance (OG) algorithm
+        // New Optimal Guidance (OG) algorithm
         function updateInterceptorOG(interceptor) {
             if (!interceptor.active) return false;
             
@@ -678,7 +1015,7 @@
             return distance;
         }
         
-        // Adaptive Proportional Navigation Guidance (APNG)
+        // New Adaptive Proportional Navigation Guidance (APNG)
         function updateInterceptorAPNG(interceptor) {
             if (!interceptor.active) return false;
             
@@ -725,7 +1062,7 @@
             return distance;
         }
         
-        // Swarm Interception Algorithm (SIA)
+        // New Swarm Interception Algorithm (SIA)
         function updateInterceptorSIA(interceptor) {
             if (!interceptor.active) return false;
             
@@ -735,11 +1072,11 @@
                 if (interceptor.trail.length > 100) interceptor.trail.shift();
             }
             
-            // Only primary interceptor fully locks on target
+            // Only lead interceptor fully locks target
             let targetX, targetY;
             
             if (interceptor.id === 1) {
-                // Primary interceptor locks on missile
+                // Lead interceptor locks missile
                 targetX = missile.x;
                 targetY = missile.y;
             } else {
@@ -830,7 +1167,7 @@
             const collision = checkCollision();
             if (collision.intercepted) {
                 simulationRunning = false;
-                statusDisplay.textContent = "Interception successful!";
+                statusDisplay.textContent = "Interception Successful!";
                 resultDisplay.textContent = `Interceptor #${collision.interceptorId} hit target`;
                 resultDisplay.style.color = "#4CAF50";
                 interceptTimeDisplay.textContent = (interceptTime / 60).toFixed(2) + " sec";
@@ -846,16 +1183,16 @@
             if (missile.x < -20 || missile.x > canvas.width + 20 || 
                 missile.y < -20 || missile.y > canvas.height + 20) {
                 simulationRunning = false;
-                statusDisplay.textContent = "Interception failed";
+                statusDisplay.textContent = "Interception Failed";
                 resultDisplay.textContent = "Missile escaped interception range";
                 resultDisplay.style.color = "#f44336";
                 return;
             }
             
-            // Check for timeout
+            // Check for interception timeout
             if (interceptTime > 1000) {
                 simulationRunning = false;
-                statusDisplay.textContent = "Interception failed";
+                statusDisplay.textContent = "Interception Failed";
                 resultDisplay.textContent = "Interception timeout";
                 resultDisplay.style.color = "#f44336";
                 return;
